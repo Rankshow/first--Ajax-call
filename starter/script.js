@@ -165,34 +165,118 @@
 
 // ===challenge coding 1======
 
-const whereAmI = function (lat, lng){
-  // Get the location Api
-  fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
-  .then(res => {
+// const whereAmI = function (lat, lng){
+//   // Get the location Api
+//   fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+//   .then(res => {
 
-    // throw an Error
-    if(!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
-    return res.json()
-  })
-  // fetch the city and counrty data.
-  .then(data => {
-    console.log(data);
-    console.log(`You are in ${data.city}, ${data.country}`);
+//     // throw an Error
+//     if(!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+//     return res.json()
+//   })
+//   // fetch the city and counrty data.
+//   .then(data => {
+//     console.log(data);
+//     console.log(`You are in ${data.city}, ${data.country}`);
 
-    return fetch(`https://restcountries.com/v2/name/${data.country}`);
-  })
-  // It gives the status of the respose
-  .then(res => {
-    if (!res.ok)
-    throw new Error(`Counrty not found (${res.status})`);
+//     return fetch(`https://restcountries.com/v2/name/${data.country}`);
+//   })
+//   // It gives the status of the respose
+//   .then(res => {
+//     if (!res.ok)
+//     throw new Error(`Counrty not found (${res.status})`);
 
-    return response.json();
-  })
-  .then(data => renderCountry(data))
-  // catch the error in the console
-  .catch(err => console.log(`${err.message} \u{1F4A3}`));
+//     return response.json();
+//   })
+//   .then(data => renderCountry(data))
+//   // catch the error in the console
+//   .catch(err => console.log(`${err.message} \u{1F4A3}`));
+// };
+// whereAmI(52.508, 13.381);
+// whereAmI(19.037, 72.873);
+// ==========================================
+
+
+
+// Promise.resolve('resolved promis 2').then(res => {
+//   for (let i = 0; i < 100; i++){
+//     console.log(res)
+//   }
+// })
+
+// ======= building simple promise========
+// const lotteryPromise = new Promises(function(resolve, reject){
+
+//   console.log('lottery draw is happening')
+//   setTimeout(function() {
+//   if(Math.random() >= 0.5){
+//    resolve('you win the game');
+//   } else {
+//     reject(new Error('You loat your money'));
+//   }
+
+//   }, 2000)
+
+// });
+
+// lotteryPromise.then(res  => console.log(res)).catch(err => console.error(err));
+
+// // Promisifying setTimeout
+// const wait = function(seconds){
+//   return new Promise(function(resolve){
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+
+// wait(2).then(() => {
+//   console.log('i waited for 2 seconds');
+//   return wait(1);
+// }).then(() => console.log('i waited for 1 second'));
+
+// Promise.resolve('You win').then(x => console.log(x));
+// Promise.resolve(new Error('problem....')).catch(x => console.log(x));
+
+// =======promisifying geolocation api=========
+
+
+const getPosition = function(){
+  return new Promise(function(resolve, reject){
+    // navigator.geolocation.getCurrrentPosition(
+    //   position => resolve(position), 
+    //   err => reject(err)
+    // ); 
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
 };
-whereAmI(52.508, 13.381);
-whereAmI(19.037, 72.873);
+// getPosition().then(pos => console.log(pos));
 
+const whereAmI = function (l){
+  getPosition().then(pos => {
+    const {latitude: lat, longitude: lng} = pos.coords;
 
+  return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+  })
+    .then(res => {
+      if(!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+      return res.json();
+    })
+    // fetch the city and counrty data.
+    .then(data => {
+      console.log(data);
+      console.log(`You are in ${data.city}, ${data.country}`);
+  
+      return fetch(`https://restcountries.com/v2/name/${data.country}`);
+    })
+    // It gives the status of the respose
+    .then(res => {
+      if (!res.ok)
+      throw new Error(`Counrty not found (${res.status})`);
+  
+      return response.json();
+    })
+    .then(data => renderCountry(data))
+    // catch the error in the console
+    .catch(err => console.log(`${err.message} \u{1F4A3}`));
+  };
+
+  btn.addEventListener('click', whereAmI);
