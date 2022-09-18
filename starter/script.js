@@ -239,44 +239,88 @@
 // =======promisifying geolocation api=========
 
 
-const getPosition = function(){
-  return new Promise(function(resolve, reject){
-    // navigator.geolocation.getCurrrentPosition(
-    //   position => resolve(position), 
-    //   err => reject(err)
-    // ); 
-    navigator.geolocation.getCurrentPosition(resolve, reject);
+// const getPosition = function(){
+//   return new Promise(function(resolve, reject){
+//     // navigator.geolocation.getCurrrentPosition(
+//     //   position => resolve(position), 
+//     //   err => reject(err)
+//     // ); 
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
+// // getPosition().then(pos => console.log(pos));
+
+// const whereAmI = function (l){
+//   getPosition().then(pos => {
+//     const {latitude: lat, longitude: lng} = pos.coords;
+
+//   return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
+//   })
+//     .then(res => {
+//       if(!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
+//       return res.json();
+//     })
+//     // fetch the city and counrty data.
+//     .then(data => {
+//       console.log(data);
+//       console.log(`You are in ${data.city}, ${data.country}`);
+  
+//       return fetch(`https://restcountries.com/v2/name/${data.country}`);
+//     })
+//     // It gives the status of the respose
+//     .then(res => {
+//       if (!res.ok)
+//       throw new Error(`Counrty not found (${res.status})`);
+  
+//       return response.json();
+//     })
+//     .then(data => renderCountry(data))
+//     // catch the error in the console
+//     .catch(err => console.log(`${err.message} \u{1F4A3}`));
+//   };
+//   btn.addEventListener('click', whereAmI);
+
+// ==================== coding challege===============================
+const wait = function(seconds){
+  return new Promise(function(resolve){
+    setTimeout(resolve, seconds * 1000);
   });
 };
-// getPosition().then(pos => console.log(pos));
 
-const whereAmI = function (l){
-  getPosition().then(pos => {
-    const {latitude: lat, longitude: lng} = pos.coords;
+const imgContainer = document.querySelector('.images');
 
-  return fetch(`https://geocode.xyz/${lat},${lng}?geoit=json`)
-  })
-    .then(res => {
-      if(!res.ok) throw new Error(`Problem with geocoding ${res.status}`);
-      return res.json();
-    })
-    // fetch the city and counrty data.
-    .then(data => {
-      console.log(data);
-      console.log(`You are in ${data.city}, ${data.country}`);
-  
-      return fetch(`https://restcountries.com/v2/name/${data.country}`);
-    })
-    // It gives the status of the respose
-    .then(res => {
-      if (!res.ok)
-      throw new Error(`Counrty not found (${res.status})`);
-  
-      return response.json();
-    })
-    .then(data => renderCountry(data))
-    // catch the error in the console
-    .catch(err => console.log(`${err.message} \u{1F4A3}`));
-  };
+const createImage = function (imgPath){
+  return new Promise(function(resolve, reject){
+    const img = document.createElement('img');
+     img.src = imgPath;
+    
+     img.addEventListener('load', function(){
+      imgContainer.append(newImage);
+      resolve(img);
+     });
 
-  btn.addEventListener('click', whereAmI);
+     img.addEventListener('error', function(){
+      reject(new Error('Image not found'));
+     });
+  });
+};
+
+let currentImg;
+createImage('/img/img-1.jpg')
+.then(img => {
+  currentImg = img;
+  console.log('Image 1 loaded');
+  return wait(2)
+})
+.then(() =>{
+ currentImg.style.display = 'none';
+ return createImage('img/img-2.jpg')
+})
+.then(img => {
+  currentImg = img;
+   console.log('Image 2 loaded');
+})
+.then(() =>{
+  currentImg.style.display = 'none';
+})
+.catch(err => console.log(err));
